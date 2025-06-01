@@ -1,7 +1,9 @@
 #include <iostream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <glm/glm.hpp>
 #include "Game.h"
+#include "Logger.h"
 
 Game::Game()
 {
@@ -10,14 +12,14 @@ Game::Game()
 
 Game::~Game()
 {
-    std::cout << "Game destructor called!" << std::endl;
+    Logger::Log("Game destructor called!");
 }
 
 void Game::Initialize()
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
     {
-        std::cerr << "Error initialiazing SDL: " << SDL_GetError() << std::endl;
+        Logger::Err("Error initialiazing SDL: ", SDL_GetError());
         return;
     }
 
@@ -35,24 +37,20 @@ void Game::Initialize()
         SDL_WINDOW_BORDERLESS);
     if (window == NULL)
     {
-        std::cerr << "Error creating SDL Window." << std::endl;
+        Logger::Err("Error creating SDL Window.");
         return;
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (renderer == NULL)
     {
-        std::cerr << "Error creating SDL Renderer." << std::endl;
+        Logger::Err("Error creating SDL Renderer.");
         return;
     }
 
     SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
 
     isRunning = true;
-}
-
-void Game::Setup()
-{
 }
 
 void Game::Run()
@@ -72,6 +70,15 @@ void Game::Destroy()
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+glm::vec2 playerPosition;
+glm::vec2 playerVelocity;
+
+void Game::Setup()
+{
+    playerPosition = {10.0, 20.0};
+    playerVelocity = {100.0, 0.0};
 }
 
 void Game::ProcessInput()
@@ -98,7 +105,22 @@ void Game::ProcessInput()
 
 void Game::Update()
 {
-    // TODO: Update game objects...
+    // If we are too fast, waste some time until we reach the MILLISECS_PER_FRAME
+    int timeToWait = MILLISECS_PER_FRAME - (SDL_GetTicks() - millisecsPreviousFrame);
+    if (timeToWait > 0 && timeToWait <= MILLISECS_PER_FRAME)
+    {
+        SDL_Delay(timeToWait);
+    }
+
+    // The difference in ticks since the last frame, converted to seconds
+    double deltaTime = (SDL_GetTicks() - millisecsPreviousFrame) / 1000.0;
+
+    // Store the current frame time
+    millisecsPreviousFrame = SDL_GetTicks();
+
+    // Update game objects
+    playerPosition.x += playerVelocity.x * deltaTime;
+    playerPosition.y += playerVelocity.y * deltaTime;
 }
 
 void Game::Render()
@@ -112,7 +134,10 @@ void Game::Render()
     SDL_FreeSurface(surface);
 
     // What is the destination rectangle that we want to place our texture
-    SDL_Rect dstRect = {10, 10, 32, 32};
+    SDL_Rect dstRect = {
+        static_cast<int>(playerPosition.x),
+        static_cast<int>(playerPosition.y),
+        32, 32};
     SDL_RenderCopy(renderer, texture, NULL, &dstRect);
     SDL_DestroyTexture(texture);
 
