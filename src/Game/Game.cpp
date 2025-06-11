@@ -3,7 +3,8 @@
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include "Game.h"
-#include "Logger.h"
+#include "../ECS/ECS.hpp"
+#include "../Logger/Logger.hpp"
 
 Game::Game()
 {
@@ -72,13 +73,13 @@ void Game::Destroy()
     SDL_Quit();
 }
 
-glm::vec2 playerPosition;
-glm::vec2 playerVelocity;
-
 void Game::Setup()
 {
-    playerPosition = {10.0, 20.0};
-    playerVelocity = {100.0, 0.0};
+    // TODO:
+    // Entity tank = registry.CreateEntity();
+    // tank.AddComponent<TransformComponent>();
+    // tank.AddComponent<BoxColliderComponent>();
+    // tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
 }
 
 void Game::ProcessInput()
@@ -118,9 +119,10 @@ void Game::Update()
     // Store the current frame time
     millisecsPreviousFrame = SDL_GetTicks();
 
-    // Update game objects
-    playerPosition.x += playerVelocity.x * deltaTime;
-    playerPosition.y += playerVelocity.y * deltaTime;
+    // TODO:
+    // MovementSystem.Update();
+    // CollisionSystem.Update();
+    // DamageSystem.Update();
 }
 
 void Game::Render()
@@ -128,18 +130,8 @@ void Game::Render()
     SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
     SDL_RenderClear(renderer);
 
-    // Loads a PNG texture
-    SDL_Surface *surface = IMG_Load("./assets/images/tank-tiger-right.png");
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-
-    // What is the destination rectangle that we want to place our texture
-    SDL_Rect dstRect = {
-        static_cast<int>(playerPosition.x),
-        static_cast<int>(playerPosition.y),
-        32, 32};
-    SDL_RenderCopy(renderer, texture, NULL, &dstRect);
-    SDL_DestroyTexture(texture);
+    // TODO:
+    // Render game objects
 
     SDL_RenderPresent(renderer);
 }
