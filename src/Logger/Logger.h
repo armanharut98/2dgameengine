@@ -53,8 +53,6 @@ public:
     static void Err(const Args &...args);
 };
 
-std::vector<LogEntry> Logger::logEntries;
-
 template <typename... Args>
 void Logger::Log(const Args &...args)
 {

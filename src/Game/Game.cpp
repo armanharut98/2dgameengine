@@ -3,12 +3,21 @@
 #include <SDL2/SDL_image.h>
 #include <glm/glm.hpp>
 #include "Game.h"
-#include "../ECS/ECS.hpp"
-#include "../Logger/Logger.hpp"
+#include "../ECS/ECS.h"
+#include "../Logger/Logger.h"
+
+#include "../Components/TransformComponent.h"
+#include "../Components/RigidBodyComponent.h"
+#include "../Components/SpriteComponent.h"
+
+#include "../Systems/MovementSystem.h"
+#include "../Systems/RenderSystem.h"
 
 Game::Game()
 {
+    Logger::Log("Game constructor called!");
     isRunning = false;
+    registry = std::make_unique<Registry>();
 }
 
 Game::~Game()
@@ -75,11 +84,19 @@ void Game::Destroy()
 
 void Game::Setup()
 {
-    // TODO:
-    // Entity tank = registry.CreateEntity();
-    // tank.AddComponent<TransformComponent>();
-    // tank.AddComponent<BoxColliderComponent>();
-    // tank.AddComponent<SpriteComponent>("./assets/images/tank.png");
+    // Add the systems that need to be processed in our game
+    registry->AddSystem<MovementSystem>();
+    registry->AddSystem<RenderSystem>();
+
+    Entity tank = registry->CreateEntity();
+    tank.AddComponent<TransformComponent>(glm::vec2(10.0, 30.0), glm::vec2(1.0, 1.0), 0.0);
+    tank.AddComponent<RigidBodyComponent>(glm::vec2(50.0, 0.0));
+    tank.AddComponent<SpriteComponent>(10, 10);
+
+    Entity truck = registry->CreateEntity();
+    truck.AddComponent<TransformComponent>(glm::vec2(50.0, 100.0), glm::vec2(1.0, 1.0), 0.0);
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 50.0));
+    truck.AddComponent<SpriteComponent>(10, 50);
 }
 
 void Game::ProcessInput()
@@ -119,10 +136,11 @@ void Game::Update()
     // Store the current frame time
     millisecsPreviousFrame = SDL_GetTicks();
 
-    // TODO:
-    // MovementSystem.Update();
-    // CollisionSystem.Update();
-    // DamageSystem.Update();
+    // Invoke all the systems that need to update
+    registry->GetSystem<MovementSystem>().Update(deltaTime);
+
+    // Update the registry to process the entities that are waiting to be created/deleted
+    registry->Update();
 }
 
 void Game::Render()
@@ -130,8 +148,9 @@ void Game::Render()
     SDL_SetRenderDrawColor(renderer, 21, 21, 21, 255);
     SDL_RenderClear(renderer);
 
-    // TODO:
-    // Render game objects
+    // Invoke all the systems that need to render
+    registry->GetSystem<RenderSystem>().Update(renderer);
+    Logger::Log(registry->HasSystem<RenderSystem>());
 
     SDL_RenderPresent(renderer);
 }
