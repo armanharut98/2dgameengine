@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include "../ECS/ECS.h"
+#include "../AssetStore/AssetStore.h"
 
 const int FPS = 60;
 const int MILLISECS_PER_FRAME = 1000 / FPS;
@@ -15,6 +16,7 @@ private:
     bool isRunning;
     int millisecsPreviousFrame = 0;
     std::unique_ptr<Registry> registry;
+    std::unique_ptr<AssetStore> assetStore;
 
 public:
     Game();

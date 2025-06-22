@@ -5,9 +5,11 @@ struct SpriteComponent
 {
     int width;
     int height;
+    std::string assetId;
 
-    SpriteComponent(int witdth = 1, int height = 1)
+    SpriteComponent(std::string assetId = "", int width = 1, int height = 1)
     {
+        this->assetId = assetId;
         this->width = width;
         this->height = height;
     }
