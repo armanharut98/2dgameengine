@@ -13,6 +13,8 @@
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 
+#include "../TileMap/TileMap.h"
+
 Game::Game()
 {
     Logger::Log("Game constructor called!");
@@ -94,7 +96,10 @@ void Game::LoadLevel(int level)
     assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
     assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
 
-    // Load the tilemap
+    // TODO: Load the tilemap
+    // We need to load the file ./assets/tilemaps/jungle.map
+    assetStore->AddTexture(renderer, "jungle-tilemap", "./assets/tilemaps/jungle.png");
+    std::unique_ptr<TileMap> jungle = std::make_unique<TileMap>("jungle-tilemap", 32, 2.0, "./assets/tilemaps/jungle.map", registry.get(), assetStore.get());
 
     Entity tank = registry->CreateEntity();
     tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(1.0, 1.0), 0.0);

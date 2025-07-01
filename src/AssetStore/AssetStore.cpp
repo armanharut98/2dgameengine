@@ -26,11 +26,13 @@ void AssetStore::AddTexture(SDL_Renderer *renderer, const std::string &assetId, 
     if (!surface)
     {
         Logger::Err("Error when creating a surface from file ", filePath, ": ", SDL_GetError());
+        return;
     }
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture)
     {
         Logger::Err("Error when creating a texture from file ", filePath, ": ", SDL_GetError());
+        return;
     }
     SDL_FreeSurface(surface);
 
@@ -42,4 +44,11 @@ void AssetStore::AddTexture(SDL_Renderer *renderer, const std::string &assetId, 
 SDL_Texture *AssetStore::GetTexture(const std::string &assetId)
 {
     return textures[assetId];
+}
+
+std::pair<int, int> AssetStore::GetTextureWidthHeight(const std::string &assetId)
+{
+    int w, h;
+    SDL_QueryTexture(GetTexture(assetId), NULL, NULL, &w, &h);
+    return std::make_pair(w, h);
 }
