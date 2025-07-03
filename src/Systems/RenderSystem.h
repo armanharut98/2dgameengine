@@ -28,8 +28,8 @@ public:
             // Set the source rectangle of our original sprite texture
             SDL_Rect srcRect = sprite.srcRect;
             // Set the destination rectangle with the x and y position to be rendered in our SDL window
-            SDL_Rect dstRect = {transform.position.x,
-                                transform.position.y,
+            SDL_Rect dstRect = {static_cast<int>(transform.position.x),
+                                static_cast<int>(transform.position.y),
                                 static_cast<int>(sprite.width * transform.scale.x),
                                 static_cast<int>(sprite.height * transform.scale.y)};
 
