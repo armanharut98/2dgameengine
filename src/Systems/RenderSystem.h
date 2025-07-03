@@ -2,6 +2,7 @@
 #define RENDERSYSTEM_H
 
 #include <SDL2/SDL.h>
+#include <algorithm>
 
 #include "../ECS/ECS.h"
 #include "../AssetStore/AssetStore.h"
@@ -19,8 +20,13 @@ public:
 
     void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore)
     {
+        // Sort all the entities of our system by the z-index
+        std::vector<Entity> entities = GetSystemEntities();
+        std::sort(entities.begin(), entities.end(), [](const Entity &a, const Entity &b)
+                  { return a.GetComponent<SpriteComponent>().zIndex < b.GetComponent<SpriteComponent>().zIndex; });
+
         // Loop all entities that the system is interested in
-        for (auto entity : GetSystemEntities())
+        for (auto entity : entities)
         {
             const auto transform = entity.GetComponent<TransformComponent>();
             const auto sprite = entity.GetComponent<SpriteComponent>();
