@@ -11,9 +11,11 @@
 #include "../Components/TransformComponent.h"
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/SpriteComponent.h"
+#include "../Components/AnimationComponent.h"
 
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
+#include "../Systems/AnimationSystem.h"
 
 Game::Game()
 {
@@ -36,10 +38,10 @@ void Game::Initialize()
         return;
     }
 
-    // SDL_DisplayMode displayMode;
-    // SDL_GetCurrentDisplayMode(0, &displayMode);
-    windowWidth = 800;  // displayMode.w;
-    windowHeight = 600; // displayMode.h;
+    SDL_DisplayMode displayMode;
+    SDL_GetCurrentDisplayMode(0, &displayMode);
+    windowWidth = displayMode.w;
+    windowHeight = displayMode.h;
 
     window = SDL_CreateWindow(
         NULL,
@@ -91,16 +93,19 @@ void Game::LoadLevel(int level)
     // Add the systems that need to be processed in our game
     registry->AddSystem<MovementSystem>();
     registry->AddSystem<RenderSystem>();
+    registry->AddSystem<AnimationSystem>();
 
     // Adding assets to the asset store
     assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
     assetStore->AddTexture(renderer, "truck-image", "./assets/images/truck-ford-right.png");
+    assetStore->AddTexture(renderer, "chopper-image", "./assets/images/chopper.png");
+    assetStore->AddTexture(renderer, "radar-image", "./assets/images/radar.png");
 
     // Load the tilemap
     assetStore->AddTexture(renderer, "jungle-tilemap", "./assets/tilemaps/jungle.png");
 
     int tileSize = 32;
-    double tileScale = 2.0;
+    double tileScale = 3.0;
     int mapNumCols = 25;
     int mapNumRows = 20;
 
@@ -135,6 +140,19 @@ void Game::LoadLevel(int level)
     truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(3.0, 3.0), 45.0);
     truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 10.0));
     truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 3);
+    // tank.AddComponent<BoxColliderComponent>()
+
+    Entity chopper = registry->CreateEntity();
+    chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(2.0, 2.0), 0.0);
+    chopper.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 10.0));
+    chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 10);
+    chopper.AddComponent<AnimationComponent>(2, 10, true);
+    // chopper.AddComponent<BoxColliderComponent>()
+
+    Entity radar = registry->CreateEntity();
+    radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
+    radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 10);
+    radar.AddComponent<AnimationComponent>(8, 2, true);
 }
 
 void Game::Setup()
@@ -181,6 +199,7 @@ void Game::Update()
 
     // Invoke all the systems that need to update
     registry->GetSystem<MovementSystem>().Update(deltaTime);
+    registry->GetSystem<AnimationSystem>().Update();
 
     // Update the registry to process the entities that are waiting to be created/deleted
     registry->Update();
