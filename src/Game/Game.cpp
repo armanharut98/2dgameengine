@@ -12,10 +12,12 @@
 #include "../Components/RigidBodyComponent.h"
 #include "../Components/SpriteComponent.h"
 #include "../Components/AnimationComponent.h"
+#include "../Components/BoxColliderComponent.h"
 
 #include "../Systems/MovementSystem.h"
 #include "../Systems/RenderSystem.h"
 #include "../Systems/AnimationSystem.h"
+#include "../Systems/CollisionSystem.h"
 
 Game::Game()
 {
@@ -94,6 +96,7 @@ void Game::LoadLevel(int level)
     registry->AddSystem<MovementSystem>();
     registry->AddSystem<RenderSystem>();
     registry->AddSystem<AnimationSystem>();
+    registry->AddSystem<CollisionSystem>();
 
     // Adding assets to the asset store
     assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -132,22 +135,24 @@ void Game::LoadLevel(int level)
     mapFile.close();
 
     Entity tank = registry->CreateEntity();
-    tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(3.0, 3.0), 0.0);
+    tank.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(2.0, 2.0), 0.0);
     tank.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 0.0));
     tank.AddComponent<SpriteComponent>("tank-image", 32, 32, 2);
+    tank.AddComponent<BoxColliderComponent>(32 * 2, 32 * 2);
 
     Entity truck = registry->CreateEntity();
-    truck.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(3.0, 3.0), 45.0);
-    truck.AddComponent<RigidBodyComponent>(glm::vec2(0.0, 10.0));
+    truck.AddComponent<TransformComponent>(glm::vec2(200.0, 10.0), glm::vec2(2.0, 2.0), 0.0);
+    truck.AddComponent<RigidBodyComponent>(glm::vec2(-10.0, 0.0));
     truck.AddComponent<SpriteComponent>("truck-image", 32, 32, 3);
-    // tank.AddComponent<BoxColliderComponent>()
+    truck.AddComponent<BoxColliderComponent>(32 * 2, 32 * 2);
 
+    /*
     Entity chopper = registry->CreateEntity();
     chopper.AddComponent<TransformComponent>(glm::vec2(10.0, 10.0), glm::vec2(2.0, 2.0), 0.0);
     chopper.AddComponent<RigidBodyComponent>(glm::vec2(10.0, 10.0));
     chopper.AddComponent<SpriteComponent>("chopper-image", 32, 32, 10);
     chopper.AddComponent<AnimationComponent>(2, 10, true);
-    // chopper.AddComponent<BoxColliderComponent>()
+    */
 
     Entity radar = registry->CreateEntity();
     radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
@@ -200,6 +205,7 @@ void Game::Update()
     // Invoke all the systems that need to update
     registry->GetSystem<MovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update();
+    registry->GetSystem<CollisionSystem>().Update();
 
     // Update the registry to process the entities that are waiting to be created/deleted
     registry->Update();
