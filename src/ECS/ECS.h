@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <set>
+#include <deque>
 #include <algorithm>
 #include <memory>
 #include <typeindex>
@@ -230,6 +231,7 @@ private:
     int nextEntityId = 0;
     std::set<Entity> entitiesToBeAdded;  // Entities awaiting creation in the next Registry.Update()
     std::set<Entity> entitiesToBeKilled; // Entities awaiting destruction in the next Registry.Update()
+    std::deque<int> freeIDs;             // List of free entity IDs that were previously removed
     // Vector of component pools, each pool contains all the data for a certain component type
     // [Vector index = component type id]
     // [Pool index = entity id]
@@ -246,8 +248,9 @@ public:
 
     // Entity management
     Entity CreateEntity();
-    void AddEntityToSystem(Entity entity);
-    void RemoveEntityFromSystem(Entity entity);
+    void KillEntity(Entity Entity);
+    void AddEntityToSystems(Entity entity);
+    void RemoveEntityFromSystems(Entity entity);
 
     // Component management
     template <typename TComponent, typename... TArgs>

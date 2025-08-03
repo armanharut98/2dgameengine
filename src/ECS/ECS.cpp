@@ -72,19 +72,33 @@ const Signature &System::GetComponentSignature() const
 
 Entity Registry::CreateEntity()
 {
-    int entityId = nextEntityId++;
+    int entityId;
+    if (freeIDs.empty())
+    {
+        entityId = nextEntityId++;
+        if (entityId >= static_cast<int>(entityComponentSignatures.size()))
+        {
+            entityComponentSignatures.resize(entityId + 1);
+        }
+    }
+    else
+    {
+        entityId = freeIDs.front();
+        freeIDs.pop_front();
+    }
     Entity entity(entityId);
     entity.registry = this;
     entitiesToBeAdded.insert(entity);
-    if (entityId >= static_cast<int>(entityComponentSignatures.size()))
-    {
-        entityComponentSignatures.resize(entityId + 1);
-    }
     Logger::Log("Entity created with id: ", entityId);
     return entity;
 }
 
-void Registry::AddEntityToSystem(Entity entity)
+void Registry::KillEntity(Entity entity)
+{
+    entitiesToBeKilled.insert(entity);
+}
+
+void Registry::AddEntityToSystems(Entity entity)
 {
     const auto entityComponentSignature = entityComponentSignatures[entity.GetId()];
     for (const auto &system : systems)
@@ -97,8 +111,12 @@ void Registry::AddEntityToSystem(Entity entity)
     }
 }
 
-void Registry::RemoveEntityFromSystem(Entity entity)
+void Registry::RemoveEntityFromSystems(Entity entity)
 {
+    for (const auto &system : systems)
+    {
+        system.second->RemoveEntity(entity);
+    }
 }
 
 // Here is where we actually insert/delete the entities that are waiting to be added/removed.
@@ -109,13 +127,15 @@ void Registry::Update()
 {
     for (auto entity : entitiesToBeAdded)
     {
-        AddEntityToSystem(entity);
+        AddEntityToSystems(entity);
     }
     entitiesToBeAdded.clear();
 
     for (auto entity : entitiesToBeKilled)
     {
-        RemoveEntityFromSystem(entity);
+        RemoveEntityFromSystems(entity);
+        entityComponentSignatures[entity.GetId()].reset();
+        freeIDs.push_back(entity.GetId());
     }
     entitiesToBeKilled.clear();
 }
