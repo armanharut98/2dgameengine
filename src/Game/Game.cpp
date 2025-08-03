@@ -159,8 +159,6 @@ void Game::LoadLevel(int level)
     radar.AddComponent<TransformComponent>(glm::vec2(windowWidth - 74.0, 10.0), glm::vec2(1.0, 1.0), 0.0);
     radar.AddComponent<SpriteComponent>("radar-image", 64, 64, 10);
     radar.AddComponent<AnimationComponent>(8, 2, true);
-
-    tank.Kill();
 }
 
 void Game::Setup()

@@ -101,6 +101,7 @@ Entity Registry::CreateEntity()
 void Registry::KillEntity(Entity entity)
 {
     entitiesToBeKilled.insert(entity);
+    Logger::Log("Entity killed with id: ", entity.GetId());
 }
 
 void Registry::AddEntityToSystems(Entity entity)

@@ -40,9 +40,9 @@ public:
                         Logger::Log("Entities ", a->GetId(), " and ", b->GetId(), " have collided!");
                         if (!boxColliderA.isColliding)
                         {
-
                             boxColliderA.isColliding = true;
                         }
+                        // TODO: emit an event
                     }
                 }
             }
