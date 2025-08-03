@@ -21,37 +21,46 @@ public:
         // Loop all the entites that the system is interested in
         for (auto a = entities.begin(); a != entities.end(); a++)
         {
+            auto &transformA = a->GetComponent<TransformComponent>();
+            auto &boxColliderA = a->GetComponent<BoxColliderComponent>();
+
+            boxColliderA.isColliding = false;
             // Loop all the entities that still need to be checked (to the right of a)
-            for (auto b = a + 1; b != entities.end(); b++)
+            for (auto b = entities.begin(); b != entities.end(); b++)
             {
-                // Perform AABB collision check between entites a and b
-                bool collisionHappened = CheckAABBCollision(*a, *b);
-                if (collisionHappened)
+                if (a != b)
                 {
-                    Logger::Log("Entities ", a->GetId(), " and ", b->GetId(), " have collided!");
+                    auto &transformB = b->GetComponent<TransformComponent>();
+                    auto &boxColliderB = b->GetComponent<BoxColliderComponent>();
+
+                    // Perform AABB collision check between entites a and b
+                    bool collisionHappened = CheckAABBCollision(transformA, boxColliderA, transformB, boxColliderB);
+                    if (collisionHappened)
+                    {
+                        Logger::Log("Entities ", a->GetId(), " and ", b->GetId(), " have collided!");
+                        if (!boxColliderA.isColliding)
+                        {
+
+                            boxColliderA.isColliding = true;
+                        }
+                    }
                 }
             }
         }
     }
 
 private:
-    bool CheckAABBCollision(Entity a, Entity b)
+    bool CheckAABBCollision(const TransformComponent &transformA, const BoxColliderComponent &boxColliderA, const TransformComponent &transformB, const BoxColliderComponent &boxColliderB)
     {
-        auto transformA = a.GetComponent<TransformComponent>();
-        auto colliderA = a.GetComponent<BoxColliderComponent>();
+        auto aX = transformA.position.x + boxColliderA.offset.x;
+        auto aY = transformA.position.y + boxColliderA.offset.y;
+        auto aW = boxColliderA.width;
+        auto aH = boxColliderA.height;
 
-        auto aX = transformA.position.x + colliderA.offset.x;
-        auto aY = transformA.position.y + colliderA.offset.y;
-        auto aW = colliderA.width;
-        auto aH = colliderA.height;
-
-        auto transformB = b.GetComponent<TransformComponent>();
-        auto colliderB = b.GetComponent<BoxColliderComponent>();
-
-        auto bX = transformB.position.x + colliderB.offset.x;
-        auto bY = transformB.position.y + colliderB.offset.y;
-        auto bW = colliderB.width;
-        auto bH = colliderB.height;
+        auto bX = transformB.position.x + boxColliderB.offset.x;
+        auto bY = transformB.position.y + boxColliderB.offset.y;
+        auto bW = boxColliderB.width;
+        auto bH = boxColliderB.height;
 
         return (aX < bX + bW &&
                 aX + aW > bX &&
