@@ -9,6 +9,11 @@ int Entity::GetId() const
     return id;
 }
 
+void Entity::Kill()
+{
+    registry->KillEntity(*this);
+}
+
 bool Entity::operator==(const Entity &other) const
 {
     return id == other.GetId();
