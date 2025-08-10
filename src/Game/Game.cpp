@@ -18,7 +18,11 @@
 #include "../Systems/RenderSystem.h"
 #include "../Systems/AnimationSystem.h"
 #include "../Systems/CollisionSystem.h"
-#include "../Systems/RenderCollider.h"
+#include "../Systems/RenderColliderSystem.h"
+#include "../Systems/DamageSystem.h"
+#include "../Systems/KeyboardControlSystem.h"
+
+#include "../Events/KeyPressedEvent.h"
 
 Game::Game()
 {
@@ -26,6 +30,7 @@ Game::Game()
     isRunning = false;
     registry = std::make_unique<Registry>();
     assetStore = std::make_unique<AssetStore>();
+    eventBus = std::make_unique<EventBus>();
 }
 
 Game::~Game()
@@ -99,6 +104,8 @@ void Game::LoadLevel(int level)
     registry->AddSystem<AnimationSystem>();
     registry->AddSystem<CollisionSystem>();
     registry->AddSystem<RenderCollisionSystem>();
+    registry->AddSystem<DamageSystem>();
+    registry->AddSystem<KeyboardControlSystem>();
 
     // Adding assets to the asset store
     assetStore->AddTexture(renderer, "tank-image", "./assets/images/tank-panther-right.png");
@@ -183,8 +190,9 @@ void Game::ProcessInput()
             }
             if (sdlEvent.key.keysym.sym == SDLK_d)
             {
-                debugMode = !debugMode;
+                isDebug = !isDebug;
             }
+            eventBus->EmitEvent<KeyPressedEvent>(sdlEvent.key.keysym.sym);
             break;
         default:
             break;
@@ -207,10 +215,17 @@ void Game::Update()
     // Store the current frame time
     millisecsPreviousFrame = SDL_GetTicks();
 
+    // Reset all event handlers for the current frame
+    eventBus->Reset();
+
+    // Perform the subscription of the events for all systems
+    registry->GetSystem<DamageSystem>().SubscribeToEvents(eventBus);
+    registry->GetSystem<KeyboardControlSystem>().SubscribeToEvents(eventBus);
+
     // Invoke all the systems that need to update
     registry->GetSystem<MovementSystem>().Update(deltaTime);
     registry->GetSystem<AnimationSystem>().Update();
-    registry->GetSystem<CollisionSystem>().Update();
+    registry->GetSystem<CollisionSystem>().Update(eventBus);
 
     // Update the registry to process the entities that are waiting to be created/deleted
     registry->Update();
@@ -223,7 +238,7 @@ void Game::Render()
 
     // Invoke all the systems that need to render
     registry->GetSystem<RenderSystem>().Update(renderer, assetStore);
-    if (debugMode)
+    if (isDebug)
     {
         registry->GetSystem<RenderCollisionSystem>().Update(renderer);
     }

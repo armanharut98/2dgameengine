@@ -2,7 +2,9 @@
 #define GAME_H
 
 #include <SDL2/SDL.h>
+
 #include "../ECS/ECS.h"
+#include "../EventBus/EventBus.h"
 #include "../AssetStore/AssetStore.h"
 
 const int FPS = 60;
@@ -14,10 +16,11 @@ private:
     SDL_Window *window;
     SDL_Renderer *renderer;
     bool isRunning;
-    bool debugMode;
+    bool isDebug;
     int millisecsPreviousFrame = 0;
     std::unique_ptr<Registry> registry;
     std::unique_ptr<AssetStore> assetStore;
+    std::unique_ptr<EventBus> eventBus;
 
 public:
     Game();

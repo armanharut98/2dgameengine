@@ -6,6 +6,8 @@
 #include "../Components/TransformComponent.h"
 #include "../Components/BoxColliderComponent.h"
 
+#include "../Events/CollisionEvent.h"
+
 class CollisionSystem : public System
 {
 public:
@@ -15,7 +17,7 @@ public:
         RequireComponent<BoxColliderComponent>();
     }
 
-    void Update()
+    void Update(std::unique_ptr<EventBus> &eventBus)
     {
         auto entities = GetSystemEntities();
         // Loop all the entites that the system is interested in
@@ -37,12 +39,11 @@ public:
                     bool collisionHappened = CheckAABBCollision(transformA, boxColliderA, transformB, boxColliderB);
                     if (collisionHappened)
                     {
-                        Logger::Log("Entities ", a->GetId(), " and ", b->GetId(), " have collided!");
+                        eventBus->EmitEvent<CollisionEvent>(*a, *b);
                         if (!boxColliderA.isColliding)
                         {
                             boxColliderA.isColliding = true;
                         }
-                        // TODO: emit an event
                     }
                 }
             }
