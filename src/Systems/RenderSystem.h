@@ -18,7 +18,7 @@ public:
         RequireComponent<TransformComponent>();
     }
 
-    void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore)
+    void Update(SDL_Renderer *renderer, std::unique_ptr<AssetStore> &assetStore, SDL_Rect &camera)
     {
         // Sort all the entities of our system by the z-index
         std::vector<Entity> entities = GetSystemEntities();
@@ -34,8 +34,8 @@ public:
             // Set the source rectangle of our original sprite texture
             SDL_Rect srcRect = sprite.srcRect;
             // Set the destination rectangle with the x and y position to be rendered in our SDL window
-            SDL_Rect dstRect = {static_cast<int>(transform.position.x),
-                                static_cast<int>(transform.position.y),
+            SDL_Rect dstRect = {static_cast<int>(transform.position.x - (sprite.isFixed ? 0 : camera.x)),
+                                static_cast<int>(transform.position.y - (sprite.isFixed ? 0 : camera.y)),
                                 static_cast<int>(sprite.width * transform.scale.x),
                                 static_cast<int>(sprite.height * transform.scale.y)};
 

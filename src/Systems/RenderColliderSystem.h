@@ -17,17 +17,17 @@ public:
         RequireComponent<BoxColliderComponent>();
     }
 
-    void Update(SDL_Renderer *renderer)
+    void Update(SDL_Renderer *renderer, SDL_Rect &camera)
     {
         for (auto entity : GetSystemEntities())
         {
             auto &transform = entity.GetComponent<TransformComponent>();
             auto &boxCollider = entity.GetComponent<BoxColliderComponent>();
 
-            SDL_Rect rect = {transform.position.x + boxCollider.offset.x,
-                             transform.position.y + boxCollider.offset.y,
-                             boxCollider.height,
-                             boxCollider.width};
+            SDL_Rect rect = {transform.position.x + boxCollider.offset.x - camera.x,
+                             transform.position.y + boxCollider.offset.y - camera.y,
+                             boxCollider.height * transform.scale.x,
+                             boxCollider.width * transform.scale.y};
 
             if (boxCollider.isColliding)
             {

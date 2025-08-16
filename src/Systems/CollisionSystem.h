@@ -55,13 +55,13 @@ private:
     {
         auto aX = transformA.position.x + boxColliderA.offset.x;
         auto aY = transformA.position.y + boxColliderA.offset.y;
-        auto aW = boxColliderA.width;
-        auto aH = boxColliderA.height;
+        auto aW = boxColliderA.width * transformA.scale.x;
+        auto aH = boxColliderA.height * transformA.scale.y;
 
         auto bX = transformB.position.x + boxColliderB.offset.x;
         auto bY = transformB.position.y + boxColliderB.offset.y;
-        auto bW = boxColliderB.width;
-        auto bH = boxColliderB.height;
+        auto bW = boxColliderB.width * transformB.scale.x;
+        auto bH = boxColliderB.height * transformB.scale.y;
 
         return (aX < bX + bW &&
                 aX + aW > bX &&

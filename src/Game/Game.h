@@ -15,6 +15,7 @@ class Game
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
+    SDL_Rect camera;
     bool isRunning;
     bool isDebug;
     int millisecsPreviousFrame = 0;
@@ -33,8 +34,11 @@ public:
     void Setup();
     void Update();
     void Render();
-    int windowWidth;
-    int windowHeight;
+
+    static int windowWidth;
+    static int windowHeight;
+    static int mapWidth;
+    static int mapHeight;
 };
 
 #endif
