@@ -12,8 +12,10 @@ class DamageSystem : public System
 private:
     void OnCollision(CollisionEvent &event)
     {
+        /*
         event.a.Kill();
         event.b.Kill();
+        */
         Logger::Log("Damage system received a CollisionEvent between entities ", event.a.GetId(), " and ", event.b.GetId());
     }
 
